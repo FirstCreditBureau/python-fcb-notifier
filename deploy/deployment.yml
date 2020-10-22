@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${CI_PROJECT_NAME}
+  labels: {app: ${CI_PROJECT_NAME}}
+spec:
+  selector:
+    matchLabels:
+      app: ${CI_PROJECT_NAME}
+  replicas: 1
+  template:
+    metadata: {labels: {app: ${CI_PROJECT_NAME}}}
+    spec:
+      containers:
+        - name: ${CI_PROJECT_NAME}
+          image: ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+      imagePullSecrets:
+        - name: gitlabce
+

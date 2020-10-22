@@ -1,0 +1,39 @@
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_TLS_CERTDIR: ""
+  CONTAINER_TAGGED_IMAGE: ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
+  CONTAINER_RELEASE_IMAGE: ${CI_REGISTRY_IMAGE}:latest
+
+docker-build:
+  stage: build
+  image: docker:stable
+  script:
+    - docker info
+    - docker pull $CONTAINER_RELEASE_IMAGE || true
+    - docker build --cache-from $CONTAINER_RELEASE_IMAGE --tag $CONTAINER_TAGGED_IMAGE --tag $CONTAINER_RELEASE_IMAGE .
+    - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+    - docker push $CONTAINER_TAGGED_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+
+prod:
+  stage: deploy
+  dependencies: []
+  environment:
+    name: production
+  image: thisiskj/kubectl-envsubst
+  variables:
+    PUBLISH_PATH: /${CI_ENVIRONMENT_SLUG}/${CI_PROJECT_NAME}
+  script:
+    - export REGISTRY_BASIC=$(echo -n ${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD} | base64)
+    - cat ./deploy/secrets/image-pull-secret.yml | envsubst | kubectl apply -f -
+    - cat ./deploy/network/service.yml | envsubst | kubectl apply -f -
+    - cat ./deploy/network/ingress.yml | envsubst | kubectl apply -f -
+    - cat ./deploy/deployment.yml | envsubst | kubectl apply -f -
+    - echo ${PUBLISH_PATH}

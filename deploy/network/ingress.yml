@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ${CI_PROJECT_NAME}-ingress
+  annotations:
+    kubernetes.io/ingress.class: 'nginx'
+#    nginx.ingress.kubernetes.io/configuration-snippet: |
+#      sub_filter 'http://kube.1cb.kz:80/qoldau/subsidies/' 'http://kube.1cb.kz:80${PUBLISH_PATH}/qoldau/subsidies/';
+#      sub_filter_once off;
+#      sub_filter_types text/xml;
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: ${PUBLISH_PATH}(/|$)(.*)
+            backend:
+              serviceName: ${CI_PROJECT_NAME}
+              servicePort: 9090
+      host: kube.1cb.kz
