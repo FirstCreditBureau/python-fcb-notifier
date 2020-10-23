@@ -1,4 +1,4 @@
-Python FCB Notifier - mirror test
+Python FCB Notifier - mirror test2
 
 # Приемник сообщение от ПКБ
 
