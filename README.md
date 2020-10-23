@@ -1,4 +1,4 @@
-Python FCB Notifier - mirror te
+Python FCB Notifier - mirror tes
 
 # Приемник сообщение от ПКБ
 
