@@ -1,4 +1,4 @@
-Python FCB Notifier - mirror test3333399999992222222222222223333333333333335555555555555
+Python FCB Notifier - mirror te
 
 # Приемник сообщение от ПКБ
 
