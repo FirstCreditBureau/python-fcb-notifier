@@ -1,3 +1,4 @@
+"""Run app"""
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/01/20 7:12 PM
 import hashlib
 import json
@@ -15,63 +16,77 @@ from log import get_logger
 app = Flask(__name__)
 
 logger = get_logger()
-authentication = None
+AUTHENTICATION = None
 
 
 def file_read(proxy_url, code, filename):
+    """
+
+    :param proxy_url:
+    :param code:
+    :param filename:
+    :return:
+    """
     payload = {
         "code": code,
         "filename": filename
     }
-    response = requests.post(proxy_url, data=json.dumps(payload), headers=authentication.bearer_header())
+    response = requests.post(proxy_url, data=json.dumps(payload), headers=AUTHENTICATION.bearer_header())
     if response.status_code == HTTPStatus.OK:
         data = response.content
         return data
-    else:
-        logger.error("CDN прокси вернул ошибку")
-        return None
+
+    logger.error("CDN прокси вернул ошибку")
+    return None
 
 
 def handler(code, content):
-    sleep(10)
-    # Конвертируем byte в string
-    content = content.decode("utf-8")
     """
     Здесь вы должны писать собственный обработчик
-    
-    Каждый code - это отдельный сервис ПКБ и каждый из них должен обрабатываться отдельно или высылаться в другую 
+
+    Каждый code - это отдельный сервис ПКБ и каждый из них должен обрабатываться отдельно или высылаться в другую
     программу
-    
+
     if code == 'MON':  # Банковский мониторинг
         mon_handler(content)
     if code == 'BCO':  # Бэкофис ПКБ
         bco_handler(content)
-    
+
     и т.д.
+
+    :rtype: object
     """
-    logger.info("Сообщение обработано. Код: {}; Контент: {}".format(code, content))
-    pass
+    sleep(10)
+    # Конвертируем byte в string
+    content = content.decode("utf-8")
+    logger.info("Сообщение обработано. Код: %s; Контент: %s", code, content)
 
 
 def create_message_hash(content):
     """
     Этот фрагмент кода предназначен для калькуляции хэш суммы
     content является byte-ом
+    :param content:
+    :return:
     """
     return hashlib.sha256(content).hexdigest()
 
 
 @app.route('/endpoint', methods=["POST"])
 def endpoint():
-    r = request.json
-    code = r['code']
-    proxy_url = r['proxy_url']
-    filename = r['filename']
-    checksum = r['checksum']
+    """
+
+    :return:
+    """
+    req = request.json
+    code = req['code']
+    proxy_url = req['proxy_url']
+    filename = req['filename']
+    checksum = req['checksum']
 
     logger.info(
-        "Получено сообщение. Код {}; CDN Сервер: {}; Название файла: {}; Заголовок: {}".format(code, proxy_url,
-                                                                                               filename, checksum)
+        "Получено сообщение. Код %s; CDN Сервер: %s; Название файла: %s; Заголовок: %s", code, proxy_url, filename,
+        checksum
     )
 
     # Чтение контента файла
@@ -88,7 +103,7 @@ def endpoint():
                        "Status": "Контент не соответствует контрольной сумме"
                    }, HTTPStatus.NOT_ACCEPTABLE
 
-        logger.info("Хэш значения сообщения: {}".format(sha256_hash))
+        logger.info("Хэш значения сообщения: %s", sha256_hash)
         # Проверка подписи
         # Требуется SDK от НУЦ РК
 
@@ -96,7 +111,7 @@ def endpoint():
             # Лучше создать асинхронный процесс для обработки
             # Время Timeout-а запроса на стороне ПКБ 10s
             Process(target=handler, args=(code, content,)).start()
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             logger.error(exc)
 
         # Запрос отработан успешно
@@ -104,11 +119,10 @@ def endpoint():
         return {
                    "sha256": sha256_hash
                }, HTTPStatus.ACCEPTED
-    else:
-        return {
-                   "Code": "FAIL",
-                   "Status": "Content is None"
-               }, HTTPStatus.INTERNAL_SERVER_ERROR
+    return {
+               "Code": "FAIL",
+               "Status": "Content is None"
+           }, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @app.route('/health', methods=["GET"])
@@ -130,11 +144,11 @@ if __name__ == '__main__':
            os.environ['AUTH_USERNAME'],
            os.environ['AUTH_PASSWORD']
     )
-    authentication = Authentication(
+    AUTHENTICATION = Authentication(
         "https://notifier.1cb.kz/api/v1",
         auth
     )
-    authentication.authorization()
+    AUTHENTICATION.authorization()
 
     port = int(os.environ.get("PORT", 9090))
     app.run(host="0.0.0.0", port=port)
