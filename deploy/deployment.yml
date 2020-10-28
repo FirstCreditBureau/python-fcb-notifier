@@ -2,12 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ${CI_PROJECT_NAME}
-  labels: {app: ${CI_PROJECT_NAME}}
+  labels:
+    maintainer: ${GITLAB_USER_LOGIN}
+    app: ${CI_PROJECT_NAME}
 spec:
   selector:
     matchLabels:
       app: ${CI_PROJECT_NAME}
-  replicas: 1
+  replicas: ${REPLICAS}
   template:
     metadata: {labels: {app: ${CI_PROJECT_NAME}}}
     spec:
@@ -15,8 +17,27 @@ spec:
         - name: ${CI_PROJECT_NAME}
           image: ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
           imagePullPolicy: Always
+          args:
+            - "--config=/etc/config/cfg"
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/config"
+              readOnly: true
           ports:
-            - containerPort: 9090
+            - containerPort: ${APP_PORT}
+          env:
+            - name: GIN_MODE
+              value: "${GIN_MODE}"
+            - name: TZ
+              value: "Asia/Almaty"
+            - name: PUBLISH_PATH
+              value: "${PUBLISH_PATH}"
       imagePullSecrets:
         - name: gitlabce
-
+      volumes:
+        - name: config
+          secret:
+            secretName: config
+            items:
+              - key: config
+                path: cfg

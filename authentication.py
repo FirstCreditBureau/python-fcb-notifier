@@ -1,30 +1,30 @@
+"""This module specified Authentication Class"""
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/25/20 2:35 AM
 import json
+import warnings
 from datetime import datetime
 from http import HTTPStatus
 
 import requests
-
-import warnings
 from urllib3.exceptions import InsecureRequestWarning
+
+from app import logger
 
 warnings.simplefilter('ignore', InsecureRequestWarning)
 
 
 def as_date_format(date_string):
+    """
+
+    :rtype: object
+    """
     return datetime.strptime(date_string[:-9], "%Y-%m-%dT%H:%M:%S.%f")
 
 
-class Authentication:
+class LoginResult:
+    """Login Result data storage"""
 
-    def __init__(self, auth_server_endpoint, login, refresh, username, password):
-        self.refresh = refresh
-        self.login = login
-        self.auth_server_endpoint = auth_server_endpoint
-        self.username = username
-        self.password = password
-
-        self.init = False
+    def __init__(self):
         self.token = None
         self.token_expired = None
         self.refresh_token = None
@@ -32,48 +32,83 @@ class Authentication:
         self.pass_change = None
 
     def from_payload(self, payload):
-        self.init = True
+        """
+
+        :rtype: object
+        """
         self.token = payload["access"]["hash"]
         self.token_expired = as_date_format(payload["access"]["expires_at"])
         self.refresh_token = payload["refresh"]["hash"]
         self.refresh_token_expired = as_date_format(payload["refresh"]["expires_at"])
         self.pass_change = payload["pass_change_needed"]
-        pass
+
+
+class Auth:
+    """Auth data storage"""
+
+    def __init__(self, login_method, refresh_method, username, password):
+        self.refresh_method = refresh_method
+        self.login_method = login_method
+        self.username = username
+        self.password = password
+
+
+class Authentication:
+    """Main class for authentication"""
+
+    def __init__(self, auth_server_endpoint, auth):
+        self.auth_server_endpoint = auth_server_endpoint
+        self.auth = auth
+        self.login = LoginResult()
 
     def authorization(self):
+        """
+
+        :return: bool
+        """
         session = requests.Session()
-        session.auth = (self.username, self.password)
-        response = session.post(self.auth_server_endpoint + self.login, verify=False)
+        session.auth = (self.auth.username, self.auth.password)
+        response = session.post(self.auth_server_endpoint + self.auth.login_method, verify=False)
 
         if response.status_code == HTTPStatus.OK:
-            self.from_payload(json.loads(response.content))
-        else:
-            pass  # todo logging
-        pass
+            self.login.from_payload(json.loads(response.content))
+            return True
+
+        logger.error("request response error: %s", response.content.decode("utf-8"))
+        return False
 
     def refresh_authorization(self):
+        """
+
+        :return: bool
+        """
         payload = {
-            "token_hash": self.refresh_token
+            "token_hash": self.login.refresh_token
         }
 
-        response = requests.post(self.auth_server_endpoint + self.refresh_token, data=payload, verify=False)
+        response = requests.post(self.auth_server_endpoint + self.auth.refresh_method, data=payload, verify=False)
         if response.status_code == HTTPStatus.OK:
-            self.from_payload(json.loads(response.content))
-        else:
-            pass  # todo logging
-        pass
+            self.login.from_payload(json.loads(response.content))
+            return True
+
+        logger.error("request response error: %s", response.content.decode("utf-8"))
+        return False
 
     def bearer_header(self):
+        """
 
-        if self.token_expired < datetime.now():
-            if self.refresh_token < datetime.now():
-                self.authorization()
+        :return:
+        """
+        auth_result = False
+        if self.login.token_expired < datetime.now():
+            if self.login.refresh_token < datetime.now():
+                auth_result = self.authorization()
             else:
-                self.refresh_authorization()
-            pass
+                auth_result = self.refresh_authorization()
 
-        return {
-            "Authorization": "Bearer " + self.token
-        }
+        if auth_result:
+            return {
+                "Authorization": "Bearer " + self.login.token
+            }
 
-    pass
+        return None

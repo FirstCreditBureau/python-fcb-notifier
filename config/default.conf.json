@@ -1,0 +1,11 @@
+{
+  "app_port": "8080",
+  "app_name": "golang-fcb-notifier",
+  "auth": {
+    "username": "<username>",
+    "password": "<password>",
+    "login": "/v1/auth/login",
+    "refresh": "/v1/auth/refresh"
+  },
+  "fcb_notifier_host": "https://notifier.1cb.kz/api/v1"
+}

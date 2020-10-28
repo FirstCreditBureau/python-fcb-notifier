@@ -6,7 +6,7 @@ spec:
   type: ClusterIP
   ports:
     - protocol: TCP
-      port: 9090
-      targetPort: 9090
+      port: ${APP_PORT}
+      targetPort: ${APP_PORT}
   selector:
     app: ${CI_PROJECT_NAME}

@@ -9,7 +9,7 @@ from time import sleep
 import requests
 from flask import Flask, request
 
-from authentication import Authentication
+from authentication import Authentication, Auth
 from log import get_logger
 
 app = Flask(__name__)
@@ -96,10 +96,8 @@ def endpoint():
             # Лучше создать асинхронный процесс для обработки
             # Время Timeout-а запроса на стороне ПКБ 10s
             Process(target=handler, args=(code, content,)).start()
-            pass
-        except Exception as e:
-            logger.error(e)
-            pass
+        except Exception as exc:
+            logger.error(exc)
 
         # Запрос отработан успешно
         # Возвращаем http статус либо OK - 200, либо, если вы используете асинхронную обработку, ACCEPTED - 202
@@ -115,7 +113,10 @@ def endpoint():
 
 @app.route('/health', methods=["GET"])
 def health():
+    """
 
+    :rtype: object
+    """
     return {
                "Code": HTTPStatus.OK,
                "Status": "ok"
@@ -123,12 +124,15 @@ def health():
 
 
 if __name__ == '__main__':
+    auth = Auth(
+           "/login/",
+           "/refresh/",
+           os.environ['AUTH_USERNAME'],
+           os.environ['AUTH_PASSWORD']
+    )
     authentication = Authentication(
         "https://notifier.1cb.kz/api/v1",
-        "/login/",
-        "/refresh/",
-        os.environ['AUTH_USERNAME'],
-        os.environ['AUTH_PASSWORD']
+        auth
     )
     authentication.authorization()
 
