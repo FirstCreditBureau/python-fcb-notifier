@@ -37,10 +37,7 @@ def endpoint():
 
         if checksum != sha256_hash:
             logger.error("Вероятно произошло ошибка в чтении файла или неправильно вычислен хэш сумма файла")
-            return {
-                       "Code": "FAIL",
-                       "Status": "Контент не соответствует контрольной сумме"
-                   }, HTTPStatus.NOT_ACCEPTABLE
+            return {"Code": "FAIL", "Status": "Контент не соответствует контрольной сумме"}, HTTPStatus.NOT_ACCEPTABLE
 
         logger.info("Хэш значения сообщения: %s", sha256_hash)
         # Проверка подписи
@@ -58,7 +55,4 @@ def endpoint():
         return {
                    "sha256": sha256_hash
                }, HTTPStatus.ACCEPTED
-    return {
-               "Code": "FAIL",
-               "Status": "Content is None"
-           }, HTTPStatus.INTERNAL_SERVER_ERROR
+    return {"Code": "FAIL", "Status": "Content is None"}, HTTPStatus.INTERNAL_SERVER_ERROR

@@ -6,7 +6,7 @@ from flask import Flask
 
 from internal.config.config import Config
 from internal.handler.auth import Authentication
-from log import get_logger
+from internal.util.log import get_logger
 
 app = Flask(__name__)
 
@@ -20,10 +20,7 @@ def health():
 
     :rtype: object
     """
-    return {
-               "Code": HTTPStatus.OK,
-               "Status": "ok"
-           }, HTTPStatus.OK
+    return {"Code": HTTPStatus.OK, "Status": "ok"}, HTTPStatus.OK
 
 
 if __name__ == '__main__':
