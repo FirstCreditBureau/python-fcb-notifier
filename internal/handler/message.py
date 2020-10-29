@@ -5,7 +5,10 @@ from http import HTTPStatus
 
 import requests
 
-from app import AUTHENTICATION, logger
+from app import AUTHENTICATION
+from internal.util.log import get_logger
+
+logger = get_logger()
 
 
 def file_read(proxy_url, code, filename):

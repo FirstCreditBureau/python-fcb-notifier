@@ -2,7 +2,9 @@
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/28/20 9:33 PM
 from time import sleep
 
-from app import logger
+from internal.util.log import get_logger
+
+logger = get_logger()
 
 
 def handler(code, content):

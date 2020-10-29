@@ -6,9 +6,12 @@ from multiprocessing import Process
 
 from flask import request
 
-from app import app, logger
+from app import app
 from internal.handler.main import handler
 from internal.handler.message import file_read
+from internal.util.log import get_logger
+
+logger = get_logger()
 
 
 @app.route('/endpoint', methods=["POST"])
