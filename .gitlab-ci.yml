@@ -39,6 +39,7 @@ pylint:
     reports:
       codequality: codeclimate.json
     when: always
+  allow_failure: true
 
 release:
   only:
