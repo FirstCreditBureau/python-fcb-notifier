@@ -1,10 +1,20 @@
-services:
-  - docker:dind
-
 stages:
+  - configuration
   - test
-  - build
+  - release
   - deploy
+
+
+configuration:
+  image: golang:1.14.0-stretch
+  stage: configuration
+  only:
+    - master
+    - stage
+    - dev
+  allow_failure: false
+  script:
+    - cat ${CONFIG} > config/conf.json
 
 pylint:
   stage: test
@@ -30,35 +40,74 @@ pylint:
       codequality: codeclimate.json
     when: always
 
-variables:
-  DOCKER_HOST: tcp://localhost:2375
-  DOCKER_TLS_CERTDIR: ""
-  CONTAINER_TAGGED_IMAGE: ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
-  CONTAINER_RELEASE_IMAGE: ${CI_REGISTRY_IMAGE}:latest
-
-docker-build:
-  stage: build
+release:
+  only:
+    - master
+    - stage
+    - dev
+  stage: release
+  cache: {}
   image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_BUILDKIT: 1
+    DOCKER_DRIVER: overlay2
   script:
     - docker info
-    - docker pull $CONTAINER_RELEASE_IMAGE || true
-    - docker build --cache-from $CONTAINER_RELEASE_IMAGE --tag $CONTAINER_TAGGED_IMAGE --tag $CONTAINER_RELEASE_IMAGE .
-    - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
-    - docker push $CONTAINER_TAGGED_IMAGE
-    - docker push $CONTAINER_RELEASE_IMAGE
+    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID} .
+    - echo ${CI_BUILD_TOKEN} | docker login -u ${CI_REGISTRY_USER} --password-stdin ${CI_REGISTRY}
+    - docker push ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
+  allow_failure: false
 
-prod:
+.base_deploy:
   stage: deploy
-  dependencies: []
-  environment:
-    name: production
   image: thisiskj/kubectl-envsubst
   variables:
     PUBLISH_PATH: /${CI_ENVIRONMENT_SLUG}/${CI_PROJECT_NAME}
+  dependencies:
+    - release
   script:
+    - export APP_PORT=9090
+    # CONFIGS
+    - export CONFIG_CONTENT=$(cat ${CONFIG} | tr -d '\n')
+    # IMAGE_PULL_SECRET
     - export REGISTRY_BASIC=$(echo -n ${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD} | base64)
     - cat ./deploy/secrets/image-pull-secret.yml | envsubst | kubectl apply -f -
+    - cat ./deploy/secrets/config-secret.yml | envsubst | kubectl apply -f -
     - cat ./deploy/network/service.yml | envsubst | kubectl apply -f -
     - cat ./deploy/network/ingress.yml | envsubst | kubectl apply -f -
     - cat ./deploy/deployment.yml | envsubst | kubectl apply -f -
+    # Show Path
     - echo ${PUBLISH_PATH}
+  allow_failure: false
+
+deploy on dev:
+  only:
+    - dev
+  environment:
+    name: development
+  variables:
+    REPLICAS: 1
+  extends: .base_deploy
+
+deploy on stage:
+  only:
+    - stage
+  environment:
+    name: staging
+  variables:
+    REPLICAS: 1
+  extends: .base_deploy
+
+deploy on production:
+  only:
+    - master
+  when: manual
+  environment:
+    name: production
+  variables:
+    REPLICAS: 1
+  extends: .base_deploy

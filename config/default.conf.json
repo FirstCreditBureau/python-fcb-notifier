@@ -1,5 +1,5 @@
 {
-  "app_port": "8080",
+  "app_port": "9090",
   "app_name": "golang-fcb-notifier",
   "auth": {
     "username": "<username>",
