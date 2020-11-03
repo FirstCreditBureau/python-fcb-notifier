@@ -26,8 +26,8 @@ spec:
           ports:
             - containerPort: ${APP_PORT}
           env:
-            - name: GIN_MODE
-              value: "${GIN_MODE}"
+            - name: FLASK_ENV
+              value: "${FLASK_ENV}"
             - name: TZ
               value: "Asia/Almaty"
             - name: PUBLISH_PATH

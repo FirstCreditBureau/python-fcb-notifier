@@ -6,7 +6,6 @@ stages:
 
 
 configuration:
-  image: golang:1.14.0-stretch
   stage: configuration
   only:
     - master

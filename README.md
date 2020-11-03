@@ -28,6 +28,7 @@ FCB Notifier - проект для отправки сообщения клие�
 
 ### Request
 
+```
 POST /endpoint HTTP/1.1
 Host: 127.0.0.1:9090
 Content-Type: application/json
@@ -38,15 +39,18 @@ Content-Type: application/json
     "filename": "<filename>",
     "checksum" : "<checksum>"
 }
+```
 
 ### Response
 
+```
 Status: 202 Accepted
 Content-Type: application/json
 
 {
     "sha256": "<hash-of-message>"
 }
+```
 
 ## Запуск на локальном компьютере программиста организации клиентов ПКБ
 
