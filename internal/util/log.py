@@ -13,10 +13,13 @@ log_object = {
 
 
 def get_logger():
-    logger = logging.getLogger("werkzeug")
-    logger.setLevel(logging.DEBUG)
+    logger_ = logging.getLogger("werkzeug")
+    logger_.setLevel(logging.DEBUG)
     log_handler = logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter(json.dumps(log_object))
     log_handler.setFormatter(formatter)
-    logger.addHandler(log_handler)
-    return logger
+    logger_.addHandler(log_handler)
+    return logger_
+
+
+logger = get_logger()

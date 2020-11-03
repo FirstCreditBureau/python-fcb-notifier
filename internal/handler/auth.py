@@ -8,9 +8,7 @@ from http import HTTPStatus
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 
-from internal.util.log import get_logger
-
-logger = get_logger()
+from internal.util.log import logger
 
 warnings.simplefilter('ignore', InsecureRequestWarning)
 
