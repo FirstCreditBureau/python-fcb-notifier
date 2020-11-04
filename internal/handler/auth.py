@@ -69,7 +69,7 @@ class Authentication:
         session = requests.Session()
         session.verify = False
         session.auth = (self.auth.username, self.auth.password)
-        response = session.post(self.auth_server_endpoint + self.auth.login_method, verify=False)
+        response = session.post(self.auth_server_endpoint + self.auth.login_method)
 
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
@@ -86,6 +86,7 @@ class Authentication:
         payload = {
             "token_hash": self.login.refresh_token
         }
+        requests.Request()
 
         response = requests.post(self.auth_server_endpoint + self.auth.refresh_method, data=payload, verify=False)
         if response.status_code == HTTPStatus.OK:

@@ -42,8 +42,6 @@ def main(config_file):
 
     app.run(host="0.0.0.0", port=config.port)
 
-    return app
-
 
 if __name__ == '__main__':
 
