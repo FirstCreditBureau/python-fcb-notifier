@@ -1,19 +1,19 @@
 stages:
-  - configuration
+#  - configuration
   - test
   - release
   - deploy
 
 
-configuration:
-  stage: configuration
-  only:
-    - master
-    - stage
-    - dev
-  script:
-    - cat ${CONFIG} > /app/config/conf.json
-  allow_failure: false
+#configuration:
+#  stage: configuration
+#  only:
+#    - master
+#    - stage
+#    - dev
+#  script:
+#    - cat ${CONFIG} > config/conf.json
+#  allow_failure: false
 
 pylint:
   stage: test
@@ -56,6 +56,7 @@ release:
     DOCKER_BUILDKIT: 1
     DOCKER_DRIVER: overlay2
   script:
+    - cat ${CONFIG} > config/conf.json
     - docker info
     - docker build -t ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID} .
     - echo ${CI_BUILD_TOKEN} | docker login -u ${CI_REGISTRY_USER} --password-stdin ${CI_REGISTRY}
