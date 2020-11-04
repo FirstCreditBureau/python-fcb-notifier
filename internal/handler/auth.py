@@ -67,6 +67,7 @@ class Authentication:
         :return: bool
         """
         session = requests.Session()
+        session.verify = False
         session.auth = (self.auth.username, self.auth.password)
         response = session.post(self.auth_server_endpoint + self.auth.login_method, verify=False)
 

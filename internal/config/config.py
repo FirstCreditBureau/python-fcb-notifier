@@ -19,9 +19,7 @@ class Config:
             logger.error("Config file is empty")
             return
 
-        logger.info(config_file)
         with open(config_file, 'r') as f:
-            logger.info(f)
             config = json.load(f)
 
         self.port = config["app_port"]
