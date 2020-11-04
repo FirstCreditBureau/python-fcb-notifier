@@ -11,9 +11,13 @@ configuration:
     - master
     - stage
     - dev
-  allow_failure: false
   script:
     - cat ${CONFIG} > config/conf.json
+  artifacts:
+    paths:
+      - config
+    expire_in: 5 minute
+  allow_failure: false
 
 pylint:
   stage: test
@@ -48,6 +52,8 @@ release:
   stage: release
   cache: {}
   image: docker:stable
+  dependencies:
+    - configuration
   services:
     - docker:dind
   variables:
