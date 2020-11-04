@@ -73,11 +73,11 @@ release:
   script:
     - export APP_PORT=9090
     # CONFIGS
-    # - export CONFIG_CONTENT=$(cat ${CONFIG} | tr -d '\n')
+    - export CONFIG_CONTENT=$(cat ${CONFIG} | tr -d '\n')
     # IMAGE_PULL_SECRET
     - export REGISTRY_BASIC=$(echo -n ${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD} | base64)
     - cat ./deploy/secrets/image-pull-secret.yml | envsubst | kubectl apply -f -
-    # - cat ./deploy/secrets/config-secret.yml | envsubst | kubectl apply -f -
+    - cat ./deploy/secrets/config-secret.yml | envsubst | kubectl apply -f -
     - cat ./deploy/network/service.yml | envsubst | kubectl apply -f -
     - cat ./deploy/network/ingress.yml | envsubst | kubectl apply -f -
     - cat ./deploy/deployment.yml | envsubst | kubectl apply -f -

@@ -17,12 +17,12 @@ spec:
         - name: ${CI_PROJECT_NAME}
           image: ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
           imagePullPolicy: Always
-#          args:
-#            - "--config=/etc/config/cfg"
-#          volumeMounts:
-#            - name: config
-#              mountPath: "/etc/config"
-#              readOnly: true
+          args:
+            - "--config=/etc/config/cfg"
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/config"
+              readOnly: true
           ports:
             - containerPort: ${APP_PORT}
           env:
@@ -34,10 +34,10 @@ spec:
               value: "${PUBLISH_PATH}"
       imagePullSecrets:
         - name: gitlabce
-#      volumes:
-#        - name: config
-#          secret:
-#            secretName: config
-#            items:
-#              - key: config
-#                path: cfg
+      volumes:
+        - name: config
+          secret:
+            secretName: config
+            items:
+              - key: config
+                path: cfg

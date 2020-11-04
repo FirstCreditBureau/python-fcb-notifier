@@ -3,6 +3,7 @@
 import json
 
 from internal.handler.auth import Auth
+from internal.util.log import logger
 
 
 class Config:
@@ -12,8 +13,13 @@ class Config:
         self.auth = None
         self.fcb_notifier_host = None
 
-    def load_config(self):
-        with open('./config/conf.json', 'r') as f:
+    def load_config(self, filename=None):
+        config_file = filename
+        if config_file is None:
+            logger.error("Config file is empty")
+            return
+
+        with open(config_file, 'r') as f:
             config = json.load(f)
 
         self.port = config["app_port"]
