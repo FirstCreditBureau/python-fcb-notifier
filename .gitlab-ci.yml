@@ -83,6 +83,7 @@ release:
     - cat ./deploy/deployment.yml | envsubst | kubectl apply -f -
     # Show Path
     - echo ${PUBLISH_PATH}
+    - echo ${CONFIG}
   allow_failure: false
 
 deploy on dev:
