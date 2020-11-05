@@ -2,6 +2,7 @@
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/25/20 2:35 AM
 import json
 import warnings
+from base64 import b64encode
 from datetime import datetime
 from http import HTTPStatus
 
@@ -66,10 +67,15 @@ class Authentication:
 
         :return: bool
         """
-        session = requests.Session()
-        session.verify = False
-        session.auth = (self.auth.username, self.auth.password)
-        response = session.post(self.auth_server_endpoint + self.auth.login_method)
+        # session = requests.Session()
+        # session.verify = False
+        # session.auth = (self.auth.username, self.auth.password)
+        # response = session.post(self.auth_server_endpoint + self.auth.login_method)
+
+        headers = {
+            "Authorization": "Basic " + b64encode(str.encode(self.auth.username + ":" + self.auth.password)).decode()
+        }
+        response = requests.post(self.auth_server_endpoint + self.auth.login_method, headers=headers, verify=False)
 
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
