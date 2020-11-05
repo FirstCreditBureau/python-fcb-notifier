@@ -2,13 +2,16 @@
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/01/20 7:12 PM
 import argparse
 import os
+import warnings
 from http import HTTPStatus
 
 from flask import Flask
+from urllib3.exceptions import InsecureRequestWarning
 
 from internal.config.config import Config
 from internal.handler.auth import Authentication
-from internal.util.log import logger
+
+warnings.simplefilter('ignore', InsecureRequestWarning)
 
 app = Flask(__name__)
 

@@ -1,17 +1,13 @@
 """This module specified Authentication Class"""
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/25/20 2:35 AM
 import json
-import warnings
-from base64 import b64encode
 from datetime import datetime
 from http import HTTPStatus
 
 import requests
-from urllib3.exceptions import InsecureRequestWarning
 
 from internal.util.log import logger
-
-warnings.simplefilter('ignore', InsecureRequestWarning)
+from internal.util.tls import TLSAdapter
 
 
 def as_date_format(date_string):
@@ -67,15 +63,12 @@ class Authentication:
 
         :return: bool
         """
-        # session = requests.Session()
+        session = requests.Session()
         # session.verify = False
-        # session.auth = (self.auth.username, self.auth.password)
-        # response = session.post(self.auth_server_endpoint + self.auth.login_method)
+        session.mount('https://', TLSAdapter())
+        session.auth = (self.auth.username, self.auth.password)
 
-        headers = {
-            "Authorization": "Basic " + b64encode(str.encode(self.auth.username + ":" + self.auth.password)).decode()
-        }
-        response = requests.post(self.auth_server_endpoint + self.auth.login_method, headers=headers, verify=False)
+        response = session.post(self.auth_server_endpoint + self.auth.login_method)
 
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
@@ -92,9 +85,11 @@ class Authentication:
         payload = {
             "token_hash": self.login.refresh_token
         }
-        requests.Request()
 
-        response = requests.post(self.auth_server_endpoint + self.auth.refresh_method, data=payload, verify=False)
+        session = requests.Session()
+        session.mount('https://', TLSAdapter())
+        response = session.post(self.auth_server_endpoint + self.auth.refresh_method, data=payload)
+
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
             return True
