@@ -111,7 +111,7 @@ class Authentication:
 
         :return:
         """
-        if self.login is None:
+        if self.login.token_expired is None:
             auth_result = self.authorization()
         else:
             if self.login.token_expired < datetime.now():
