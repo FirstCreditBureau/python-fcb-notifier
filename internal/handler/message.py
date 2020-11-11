@@ -27,7 +27,8 @@ def file_read(proxy_url, code, filename):
     session.mount('https://', TLSAdapter())
     response = session.post(
         proxy_url,
-        data=json.dumps(payload), headers=internal.handler.auth.AUTH_INSTANCE.bearer_header()
+        data=json.dumps(payload),
+        headers=internal.handler.auth.AUTH_INSTANCE.bearer_header()
     )
     if response.status_code == HTTPStatus.OK:
         data = response.content
