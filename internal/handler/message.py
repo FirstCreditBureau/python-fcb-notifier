@@ -7,6 +7,7 @@ import requests
 
 import internal
 from internal.util.log import logger
+from internal.util.tls import TLSAdapter
 
 
 def file_read(proxy_url, code, filename):
@@ -22,7 +23,9 @@ def file_read(proxy_url, code, filename):
         "filename": filename
     }
 
-    response = requests.post(
+    session = requests.Session()
+    session.mount('https://', TLSAdapter())
+    response = session.post(
         proxy_url,
         data=json.dumps(payload), headers=internal.handler.auth.AUTH_INSTANCE.bearer_header()
     )
