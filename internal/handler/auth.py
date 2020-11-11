@@ -9,6 +9,15 @@ import requests
 from internal.util.log import logger
 from internal.util.tls import TLSAdapter
 
+AUTH_INSTANCE = None
+
+
+def request_auth(config):
+    global AUTH_INSTANCE
+    AUTH_INSTANCE = Authentication(config.fcb_notifier_host, config.auth)
+    AUTH_INSTANCE.authorization()
+    pass
+
 
 def as_date_format(date_string):
     """
@@ -102,12 +111,13 @@ class Authentication:
 
         :return:
         """
-        auth_result = False
         if self.login.token_expired < datetime.now():
             if self.login.refresh_token < datetime.now():
                 auth_result = self.authorization()
             else:
                 auth_result = self.refresh_authorization()
+        else:
+            auth_result = True
 
         if auth_result:
             return {

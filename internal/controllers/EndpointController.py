@@ -4,15 +4,16 @@ import hashlib
 from http import HTTPStatus
 from multiprocessing import Process
 
-from flask import request
+from flask import request, Blueprint
 
-from app import app
 from internal.handler.main import handler
 from internal.handler.message import file_read
 from internal.util.log import logger
 
+endpoint_blueprint = Blueprint('endpoint', __name__)
 
-@app.route('/endpoint', methods=["POST"])
+
+@endpoint_blueprint.route('/endpoint', methods=["POST"])
 def endpoint():
     """
 

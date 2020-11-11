@@ -9,13 +9,13 @@ from flask import Flask
 from urllib3.exceptions import InsecureRequestWarning
 
 from internal.config.config import Config
-from internal.handler.auth import Authentication
+from internal.controllers.EndpointController import endpoint_blueprint
+from internal.handler.auth import request_auth
 
 warnings.simplefilter('ignore', InsecureRequestWarning)
 
 app = Flask(__name__)
-
-AUTHENTICATION = None
+app.register_blueprint(endpoint_blueprint)
 
 
 @app.route('/health', methods=["GET"])
@@ -40,8 +40,7 @@ def main(config_file):
     config = Config()
     config.load_config(config_file)
 
-    AUTHENTICATION = Authentication(config.fcb_notifier_host, config.auth)
-    AUTHENTICATION.authorization()
+    request_auth(config)
 
     app.run(host="0.0.0.0", port=config.port)
 

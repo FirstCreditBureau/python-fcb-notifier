@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 import requests
 
-from app import AUTHENTICATION
+import internal
 from internal.util.log import logger
 
 
@@ -21,7 +21,11 @@ def file_read(proxy_url, code, filename):
         "code": code,
         "filename": filename
     }
-    response = requests.post(proxy_url, data=json.dumps(payload), headers=AUTHENTICATION.bearer_header())
+
+    response = requests.post(
+        proxy_url,
+        data=json.dumps(payload), headers=internal.handler.auth.AUTH_INSTANCE.bearer_header()
+    )
     if response.status_code == HTTPStatus.OK:
         data = response.content
         return data
