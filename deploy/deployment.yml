@@ -11,7 +11,10 @@ spec:
       app: ${CI_PROJECT_NAME}
   replicas: ${REPLICAS}
   template:
-    metadata: {labels: {app: ${CI_PROJECT_NAME}}}
+    metadata:
+      labels:
+        maintainer: ${GITLAB_USER_LOGIN}
+        app: ${CI_PROJECT_NAME}
     spec:
       containers:
         - name: ${CI_PROJECT_NAME}
