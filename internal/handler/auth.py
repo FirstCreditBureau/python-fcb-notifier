@@ -115,7 +115,7 @@ class Authentication:
             auth_result = self.authorization()
         else:
             if self.login.token_expired < datetime.now():
-                if self.login.refresh_token < datetime.now():
+                if self.login.refresh_token_expired < datetime.now():
                     auth_result = self.authorization()
                 else:
                     auth_result = self.refresh_authorization()
