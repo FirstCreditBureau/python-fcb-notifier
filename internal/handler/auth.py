@@ -97,7 +97,7 @@ class Authentication:
 
         session = requests.Session()
         session.mount('https://', TLSAdapter())
-        response = session.post(self.auth_server_endpoint + self.auth.refresh_method, data=payload)
+        response = session.post(self.auth_server_endpoint + self.auth.refresh_method, json=payload)
 
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
