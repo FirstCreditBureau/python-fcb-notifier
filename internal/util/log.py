@@ -13,8 +13,18 @@ log_object = {
 }
 
 
+class FilterNoQuotes(logging.Filter):
+
+    def filter(self, record):
+        record.msg = record.msg.replace('"', '')
+        return record
+
+
 class Formatter(logging.Formatter):
     converter = dt.datetime.fromtimestamp
+
+    def formatMessage(self, record):
+        return self._style.format(record)
 
     def formatTime(self, record, datefmt=None):
         ct = self.converter(record.created)
@@ -34,6 +44,7 @@ def get_logger():
     formatter = Formatter(json.dumps(log_object))
     log_handler.setFormatter(formatter)
     logger_.addHandler(log_handler)
+    logger_.addFilter(FilterNoQuotes())
     return logger_
 
 

@@ -1,7 +1,6 @@
 """This module specified Authentication Class"""
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/25/20 2:35 AM
 import json
-from base64 import b64encode
 from datetime import datetime
 from http import HTTPStatus
 
