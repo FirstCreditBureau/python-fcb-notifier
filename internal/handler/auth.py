@@ -76,10 +76,9 @@ class Authentication:
         session = requests.Session()
         # session.verify = False
         session.mount('https://', TLSAdapter())
-        # session.auth = (self.auth.username, self.auth.password)
-        headers = {'Authorization': 'Basic %s' % b64encode(self.auth.username + ":" + self.auth.password).decode("ascii")}
+        session.auth = (self.auth.username, self.auth.password)
 
-        response = session.post(self.auth_server_endpoint + self.auth.login_method, headers=headers)
+        response = session.post(self.auth_server_endpoint + self.auth.login_method)
 
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
