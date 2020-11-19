@@ -24,4 +24,4 @@ def handler(code, content):
     sleep(10)
     # Конвертируем byte в string
     content = content.decode("utf-8")
-    logger.info("Сообщение обработано. Код: %s; Контент: %s", code, content)
+    logger.info("Сообщение обработано. Код: %s", code)
