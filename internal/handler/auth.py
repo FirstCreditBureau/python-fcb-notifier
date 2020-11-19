@@ -1,6 +1,7 @@
 """This module specified Authentication Class"""
 # Created by Жасулан Бердибеков <zhasulan87@gmail.com> at 10/25/20 2:35 AM
 import json
+from base64 import b64encode
 from datetime import datetime
 from http import HTTPStatus
 
@@ -75,9 +76,10 @@ class Authentication:
         session = requests.Session()
         # session.verify = False
         session.mount('https://', TLSAdapter())
-        session.auth = (self.auth.username, self.auth.password)
+        # session.auth = (self.auth.username, self.auth.password)
+        headers = {'Authorization': 'Basic %s' % b64encode(self.auth.username + ":" + self.auth.password).decode("ascii")}
 
-        response = session.post(self.auth_server_endpoint + self.auth.login_method)
+        response = session.post(self.auth_server_endpoint + self.auth.login_method, headers=headers)
 
         if response.status_code == HTTPStatus.OK:
             self.login.from_payload(json.loads(response.content))
