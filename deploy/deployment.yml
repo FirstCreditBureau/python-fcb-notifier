@@ -19,7 +19,7 @@ spec:
       containers:
         - name: ${CI_PROJECT_NAME}
           image: ${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           args:
             - "--config=/etc/config/cfg"
           volumeMounts:
