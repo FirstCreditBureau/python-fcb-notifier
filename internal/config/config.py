@@ -24,6 +24,10 @@ class Config:
 
         self.port = config["app_port"]
         self.auth = Auth(
-            config["auth"]["login"], config["auth"]["refresh"], config["auth"]["username"], config["auth"]["password"]
+            config["auth"]["login"],
+            config["auth"]["refresh"],
+            config["auth"]["is_valid"],
+            config["auth"]["username"],
+            config["auth"]["password"]
         )
         self.fcb_notifier_host = config["fcb_notifier_host"]
