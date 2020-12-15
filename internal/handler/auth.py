@@ -126,23 +126,27 @@ class Authentication:
 
         :return:
         """
-        if self.login.token_expired is None:
-            auth_result = self.authorization()
-        else:
-            if self.login.token_expired < datetime.now():
-                if self.login.refresh_token_expired < datetime.now():
-                    auth_result = self.authorization()
-                else:
-                    auth_result = self.refresh_authorization()
-            else:
-                if not self.is_valid():
-                    auth_result = self.authorization()
-                else:
-                    auth_result = True
 
-        if auth_result:
-            return {
-                "Authorization": "Bearer " + self.login.token
-            }
+        try:
+            if self.login.token_expired is None:
+                auth_result = self.authorization()
+            else:
+                if self.login.token_expired < datetime.now():
+                    if self.login.refresh_token_expired < datetime.now():
+                        auth_result = self.authorization()
+                    else:
+                        auth_result = self.refresh_authorization()
+                else:
+                    if not self.is_valid():
+                        auth_result = self.authorization()
+                    else:
+                        auth_result = True
+
+            if auth_result:
+                return {
+                    "Authorization": "Bearer " + self.login.token
+                }
+        except Exception as e:
+            logger.error(e)
 
         return None
