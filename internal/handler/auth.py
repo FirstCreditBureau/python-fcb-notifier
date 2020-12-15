@@ -119,12 +119,7 @@ class Authentication:
         session.mount('https://', TLSAdapter())
         response = session.post(self.auth_server_endpoint + self.auth.is_valid_method, json=payload)
 
-        if response.status_code == HTTPStatus.OK:
-            self.login.from_payload(json.loads(response.content))
-            return True
-
-        logger.error("request response error: %s", response.content.decode("utf-8"))
-        return False
+        return response.status_code == HTTPStatus.OK
 
     def bearer_header(self):
         """
